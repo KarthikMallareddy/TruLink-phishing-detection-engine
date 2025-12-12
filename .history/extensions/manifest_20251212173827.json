@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "",
+  "version": "1.0",
+  "description": "Uses AI to detect phishing URLs in real-time.",
+  "permissions": ["activeTab"],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

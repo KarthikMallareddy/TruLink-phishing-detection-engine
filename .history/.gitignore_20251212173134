@@ -1,0 +1,14 @@
+# Ignore Datasets
+datasets/
+
+# Ignore Large Model Files (Users should regenerate these by running train_brain.py)
+*.pkl
+
+# Ignore Python junk
+__pycache__/
+*.pyc
+
+# Ignore Virtual Env (if you have one)
+venv/
+env/
+.vscode/
