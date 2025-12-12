@@ -91,24 +91,16 @@ def get_manual_features(url):
 def check_url(req: UrlRequest):
     url_lower = req.url.lower()
 
-    # --- CHECK 1: SYSTEM & DEVELOPER URLs ---
-    # Fixes: localhost:3000, 127.0.0.1, chrome://, about:blank
-    if (url_lower.startswith(("chrome://", "edge://", "about:", "file://")) or
-        "localhost" in url_lower or 
-        "127.0.0.1" in url_lower):
-        return {"result": "SAFE", "confidence": "100% (System/Dev)"}
+    # --- CHECK 1: INTERNAL PAGES ---
+    if url_lower.startswith(("chrome://", "edge://", "about:", "file://")):
+        return {"result": "SAFE", "confidence": "100% (System)"}
 
-    # --- CHECK 2: TRUSTED DOMAIN EXTENSIONS ---
-    # Fixes: All university sites (.ac.in, .edu) and Government (.gov)
-    if url_lower.endswith((".gov.in", ".nic.in", ".ac.in", ".edu")):
-         return {"result": "SAFE", "confidence": "100% (Official/Academic)"}
-
-    # --- CHECK 3: SPECIFIC WHITELIST ---
+    # --- CHECK 2: WHITELIST ---
     for domain in WHITELIST:
         if domain in url_lower:
             return {"result": "SAFE", "confidence": "100% (Trusted)"}
 
-    # --- CHECK 4: AI PREDICTION ---
+    # --- CHECK 3: AI PREDICTION ---
     text_vector = vectorizer.transform([req.url])
     manual_features = get_manual_features(req.url)
     manual_vector = sp.csr_matrix(manual_features)

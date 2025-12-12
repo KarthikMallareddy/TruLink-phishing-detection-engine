@@ -26,27 +26,18 @@ except:
     print("❌ ERROR: Could not find .pkl files.")
 
 # --- WHITELIST (Add any trusted site here that gets flagged falsely) ---
-# --- WHITELIST (Trusted Domains & Patterns) ---
 WHITELIST = [
-    # 1. Big Tech & Social
-    "google.com", "youtube.com", "facebook.com", "amazon.com",
-    "wikipedia.org", "netflix.com", "linkedin.com", "microsoft.com",
-    "twitter.com", "instagram.com", "whatsapp.com", "telegram.org",
-    
-    # 2. Government (India) - Covers passports, tax, etc.
-    "gov.in", "nic.in", "uidai.gov.in", "incometax.gov.in",
-    
-    # 3. Finance & Payments (Legit sites that use 'secure'/'pay')
-    "paypal.com", "razorpay.com", "stripe.com", "billdesk.com",
-    "hdfcbank.com", "icicibank.com", "sbi.co.in", "onlinesbi.sbi",
-    
-    # 4. Dev & Education
-    "github.com", "stackoverflow.com", "medium.com",
-    "coursera.org", "udemy.com", "geeksforgeeks.org",
-    
-    # 5. Communication & Tools
-    "zoom.us", "skype.com", "slack.com", "discord.com",
-    "dropbox.com", "wetransfer.com", "spotify.com"
+    "airtelxstream.in",
+    "google.com",
+    "youtube.com",
+    "facebook.com",
+    "amazon.com",
+    "wikipedia.org",
+    "netflix.com",
+    "linkedin.com",
+    "microsoft.com",
+    "twitter.com",
+    "instagram.com"
 ]
 
 class UrlRequest(BaseModel):
@@ -91,24 +82,16 @@ def get_manual_features(url):
 def check_url(req: UrlRequest):
     url_lower = req.url.lower()
 
-    # --- CHECK 1: SYSTEM & DEVELOPER URLs ---
-    # Fixes: localhost:3000, 127.0.0.1, chrome://, about:blank
-    if (url_lower.startswith(("chrome://", "edge://", "about:", "file://")) or
-        "localhost" in url_lower or 
-        "127.0.0.1" in url_lower):
-        return {"result": "SAFE", "confidence": "100% (System/Dev)"}
+    # --- CHECK 1: INTERNAL PAGES ---
+    if url_lower.startswith(("chrome://", "edge://", "about:", "file://")):
+        return {"result": "SAFE", "confidence": "100% (System)"}
 
-    # --- CHECK 2: TRUSTED DOMAIN EXTENSIONS ---
-    # Fixes: All university sites (.ac.in, .edu) and Government (.gov)
-    if url_lower.endswith((".gov.in", ".nic.in", ".ac.in", ".edu")):
-         return {"result": "SAFE", "confidence": "100% (Official/Academic)"}
-
-    # --- CHECK 3: SPECIFIC WHITELIST ---
+    # --- CHECK 2: WHITELIST ---
     for domain in WHITELIST:
         if domain in url_lower:
             return {"result": "SAFE", "confidence": "100% (Trusted)"}
 
-    # --- CHECK 4: AI PREDICTION ---
+    # --- CHECK 3: AI PREDICTION ---
     text_vector = vectorizer.transform([req.url])
     manual_features = get_manual_features(req.url)
     manual_vector = sp.csr_matrix(manual_features)
